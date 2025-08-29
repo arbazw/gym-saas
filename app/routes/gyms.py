@@ -64,7 +64,6 @@ def list_gyms(
     )
     return gyms
 
-
 # --------------------------
 # Update Gym (Gym Owner/Admin Only)
 # --------------------------
@@ -80,7 +79,7 @@ def update_gym(
         raise HTTPException(status_code=404, detail="Gym not found")
 
     # only owner or admin can update
-    if current_user.role not in ["admin", "gym_owner"] or gym.owner_id != current_user.id:
+    if current_user.role not in [UserRole.gym_owner, UserRole.admin] or gym.owner_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized to update this gym")
 
     return crud.update_gym(db, gym_id, gym_update)
@@ -99,7 +98,7 @@ def delete_gym(
     if not gym:
         raise HTTPException(status_code=404, detail="Gym not found")
 
-    if current_user.role not in ["admin", "gym_owner"] or gym.owner_id != current_user.id:
+    if current_user.role not in [UserRole.gym_owner, UserRole.admin] or gym.owner_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized to delete this gym")
 
     crud.delete_gym(db, gym_id)

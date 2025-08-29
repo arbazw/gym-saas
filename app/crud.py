@@ -50,8 +50,32 @@ def create_gym(db: Session, gym: schemas.GymCreate, owner_id: int):
     return db_gym
 
 
+def get_gyms(
+    db: Session,
+    skip: int = 0,
+    limit: int = 20,
+    location: Optional[str] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+    has_trial: Optional[bool] = None
+):
+    query = db.query(models.Gym)
+
+    if location:
+        query = query.filter(models.Gym.location.ilike(f"%{location}%"))
+    if min_price is not None:
+        query = query.filter(models.Gym.subscription_price >= min_price)
+    if max_price is not None:
+        query = query.filter(models.Gym.subscription_price <= max_price)
+    if has_trial is not None:
+        query = query.filter(models.Gym.has_trial == has_trial)
+
+    return query.offset(skip).limit(limit).all()
+
+
 def get_gym(db: Session, gym_id: int) -> Optional[models.Gym]:
     return db.query(models.Gym).filter(models.Gym.id == gym_id).first()
+
 
 
 def update_gym(db: Session, gym_id: int, gym_update: schemas.GymUpdate) -> Optional[models.Gym]:
