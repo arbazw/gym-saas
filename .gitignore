@@ -1,2 +1,5 @@
 # ignore venv
 venv/
+
+# add .env
+.env
