@@ -96,6 +96,7 @@ class TrialBooking(Base):
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     gym_id = Column(Integer, ForeignKey("gyms.id", ondelete="CASCADE"), nullable=False)
     status = Column(Enum(TrialStatus), default=TrialStatus.pending, nullable=False)
+    scheduled_at = Column(DateTime, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", back_populates="trial_bookings")

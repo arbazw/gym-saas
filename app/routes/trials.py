@@ -7,12 +7,9 @@ from typing import List
 from app import schemas, crud, models
 from app.db import get_db
 from app.utils import get_current_user  # JWT-based auth
+from app.models import TrialStatus
 
-router = APIRouter(
-    prefix="/trials",
-    tags=["Trials"]
-)
-
+router = APIRouter(prefix="/trials", tags=["Trials"])
 
 @router.post("/", response_model=schemas.Trial)
 def book_trial(
@@ -54,6 +51,7 @@ def book_trial(
     trial_booking = models.TrialBooking(
         user_id=current_user.id,
         gym_id=trial.gym_id,
+        scheduled_at=trial.scheduled_at,   # ✅ now stored
         status="pending"  # default status
     )
     db.add(trial_booking)
@@ -63,25 +61,10 @@ def book_trial(
     return trial_booking
 
 
-@router.get("/", response_model=List[schemas.Trial])
-def get_user_trials(
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
-):
-    """
-    Get all trial bookings for the current user.
-    """
-    return (
-        db.query(models.TrialBooking)
-        .filter(models.TrialBooking.user_id == current_user.id)
-        .all()
-    )
-
-
 @router.put("/{trial_id}/status", response_model=schemas.Trial)
 def update_trial_status(
     trial_id: int,
-    status_update: str,
+    request: schemas.TrialStatusUpdate,  # 👈 take body as schema
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
@@ -105,14 +88,14 @@ def update_trial_status(
             detail="Not authorized to update this trial booking"
         )
 
-    allowed_statuses = {"approved", "completed", "cancelled"}
-    if status_update not in allowed_statuses:
+    allowed_statuses = {TrialStatus.pending, TrialStatus.accepted, TrialStatus.rejected}
+    if request.status_update not in allowed_statuses:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Status must be one of {allowed_statuses}"
         )
 
-    trial.status = status_update
+    trial.status = request.status_update
     db.commit()
     db.refresh(trial)
 

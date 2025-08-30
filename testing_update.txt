@@ -1,0 +1,19 @@
+testing done for:
+
+    1. create gym
+    2. get gyms
+    3. update gym
+    4. delete gym
+    5. book trial
+    6. get user trials
+    7. update trial status
+    8. user registration
+    9. user login
+    
+roles:
+    1. admin
+    2. gym_owner
+    3. user
+
+All tests passed successfully.
+

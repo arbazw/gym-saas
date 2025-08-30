@@ -46,7 +46,7 @@ class UserOut(UserBase):
     role: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 # -------------------------
@@ -68,7 +68,7 @@ class TrainerOut(TrainerBase):
     name: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 # -------------------------
@@ -106,7 +106,7 @@ class GymOut(GymBase):
     trainers: List[TrainerOut] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 # -------------------------
@@ -115,7 +115,7 @@ class GymOut(GymBase):
 
 class TrialBookingBase(BaseModel):
     gym_id: int
-
+    scheduled_at: datetime
 
 class TrialBookingCreate(TrialBookingBase):
     pass
@@ -128,7 +128,7 @@ class TrialBookingOut(TrialBookingBase):
     created_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 # ---------------- Trials ----------------
@@ -147,9 +147,10 @@ class Trial(TrialBase):
     created_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
-
+class TrialStatusUpdate(BaseModel):
+    status_update: str
 
 
 # Key Points About This Design:
@@ -158,7 +159,7 @@ class Trial(TrialBase):
 # Gym schemas → GymOut includes a list of trainers (nested schema).
 # Update schemas (GymUpdate) → all fields optional, useful for PATCH/PUT.
 # Trial Requests → separated Create (user sends request) vs Out (response with status).
-# orm_mode = True ensures compatibility with SQLAlchemy ORM objects.
+# from_attributes = True ensures compatibility with SQLAlchemy ORM objects.
 
 # ----------------------------------------------------------
 # Summary
